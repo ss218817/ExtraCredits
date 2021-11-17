@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Toggle 3D symbols</title>
+    <style>
+html, 
+body, 
+#viewDiv {
+    padding:0;
+     margin: 0; 
+     height:100%; 
+     width:100%;
+    }
+
+#paneDiv {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    padding: 12px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+}
+    </style>
+    <link rel="stylesheet" 
+    href="https://js.arcgis.com/4.21/esri/css/main.css">
+    <script src="https://js.arcgis.com/4.21/"></script>
+
+    <script>
+        require([
+            "esri/Map",
+            "esri/views/SceneView",
+            "esri/layers/FeatureLayer"
+        ],
+        function(
+            Map, SceneView, FeatureLayer
+        ) {
+            var mymap = new Map({
+                basemap: "gray"
+            });
+
+            var view = new SceneView({
+                container: "viewDiv",
+                map: mymap,
+                zoom:4.5,
+                camera:{
+                    position: {
+                        x: -130.585522,
+                        y: 19.8333333,
+                        z: 2000000},
+                        heading: 35,
+                        tilt: 45,
+                }
+            });
+            
+            var iconSymbol = {
+                type: "point-3d",
+                symbolLayers: [{
+                    type: "icon",
+                    size: 12,
+                    resource: {
+                        primitive: "kite"
+                    },
+                    material: {
+                        color: "blue"
+                    },
+                    outline: {
+                        color: "white",
+                        size: 1
+                    }
+                }]
+            };
+            var iconSymbolRenderer = {
+                type: "simple",
+                symbol: iconSymbol
+            };
+
+            var objectSymbol = {
+                type: "point-3d",
+                symbolLayers: [{
+                    type: "object",
+                    width: 70000,
+                    height: 100000,
+                    resource: {
+                        primitive: "cone"
+                    },
+                    material: {
+                        color: "blue"
+                    }
+                }]
+            };
+
+            var objectSymbolRenderer = {
+                type: "simple",
+                symbol: objectSymbol
+            };
+
+            var epicenters = new FeatureLayer({
+                url: "https://earthquake.usgs.gov/arcgis/rest/services/eq/scenarios/MapServer/0",
+                renderer: iconSymbolRenderer
+            });
+            mymap.add(epicenters);
+
+            document.getElementById("asIcon").addEventListener("click", function() {epicenters.renderer = iconSymbolRenderer;});
+
+            document.getElementById("asObject").addEventListener("click", function() {epicenters.renderer = objectSymbolRenderer;});
+
+        });
+    </script>
+</head>
+<body>
+<div id= "viewDiv"></div>
+<div id="paneDiv"> Show points as:
+    <div>
+        <input type="radio" name="symbolType"
+        value="icon" checked="checked" id="asIcon" />
+        <label for="asIcon">3D icon</label>
+    </div>
+
+    <div>
+        <input type="radio" name="symbolType"
+        value="object" id="asObject" />
+        <label for="asObject">3D object</label>
+    </div>
+</div>
+</body>
+</html>
